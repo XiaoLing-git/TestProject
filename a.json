@@ -1,0 +1,23 @@
+{
+    "stepId": "math2",
+    "stepType": "generic",
+    "status": "cancelled",
+    "inputData": null,
+    "outputData": {
+        "1": {
+            "Response": 190,
+            "Time": 1.19
+        },
+        "2": {
+            "Response": 190,
+            "Time": 1.2
+        },
+        "3": {
+            "Response": 190,
+            "Time": 1.2
+        },
+        "error": "Canceled"
+    },
+    "required": true,
+    "fatal": false
+}
