@@ -1,23 +1,22 @@
-from stepRunner import StepRunner
-from utils.steps import StepId, Step, StepType, StepStatus
-from steps.math import Test1
-from steps.math import Test2
 import json
 
+from runner.suiteRunner import SuiteRunner
+from suites.suitedemo import create_provision_suite_steps
+from utils.suites import SuiteId
 
-s1 = Step(stepId=StepId.get_all_ids()['Test1'],
-          stepType = StepType.GENERIC,
-          _implementation =Test1() )
+suite = create_provision_suite_steps()
+# print(suite.to_dict())
+# print(SuiteId.get_all_ids())
 
-s2 = Step(stepId=StepId.get_all_ids()['Test2'],
-          stepType = StepType.GENERIC,
-          _implementation =Test2() )
+s = SuiteRunner(suite)
+res = s.run()
+# print(res)
+# res= json.dumps(res)
+# print(res)
+# res = json.loads(res)
+# print(res)
+# s.output_file()
 
 
-for i in [s1,s2]:
-    s = StepRunner(i)
-    s.run()
-    with open(i.stepId + '.json', 'w') as file:
-        json.dump(
-            i.to_dict(), file, sort_keys=False, indent=4, separators=(',', ': ')
-        )
+
+

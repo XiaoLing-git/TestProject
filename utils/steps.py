@@ -1,13 +1,14 @@
+import json
 from enum import Enum
-from pydantic import Field,BaseModel,Extra
+from pydantic import Field, BaseModel, Extra
 from typing import Optional, Tuple, List
-from abc import ABC,abstractmethod
+from abc import ABC, abstractmethod
 
 
 class StepId():
     __instance = None
 
-    def  __init__(self):
+    def __init__(self):
         pass
 
     def __new__(cls, *args, **kwargs):
@@ -18,8 +19,8 @@ class StepId():
     @classmethod
     def get_all_ids(cls):
         res = {}
-        for k ,v in StepId.__dict__.items():
-            if k.startswith("__") or k in "_StepId__instance get_all_ids" :
+        for k, v in StepId.__dict__.items():
+            if k.startswith("__") or k in "_StepId__instance get_all_ids":
                 continue
             res[k] = v
         return res
@@ -35,13 +36,14 @@ class StepType(str, Enum):
 
 
 class StepStatus(str, Enum):
-
     PENDING = "pending"
     RUNNING = "running"
     AWAITING_INPUT = "awaiting_input"
     DONE = "done"
     CANCELLED = "cancelled"
     ERROR = "error"
+    PASS = "pass"
+    FAIL = "fail"
 
     def in_progress(self) -> bool:
         """Get if the status refers to a procedure that is executing."""
@@ -56,14 +58,17 @@ class StepImplementation(ABC):
 
     @abstractmethod
     def execute(
-        self, **kwargs
+            self, **kwargs
     ) -> str:
         """Execute the command, producing a string output."""
         ...
 
-    def should_repeat(self, *args) -> bool:
+    def should_repeat(self, *args):
         """Determine whether the step should repeat."""
         return False
+
+    def __str__(self):
+        return self.__class__.__name__
 
 
 class Step(BaseModel):
@@ -74,9 +79,10 @@ class Step(BaseModel):
     outputData: Tuple[str, ...] = Field(default=(), description="Output data, if any")
     required: bool = Field(default=True, description="Step required for suite to pass")
     fatal: bool = Field(default=False, description="Suite should end if step fails")
+    elapsed_time: str = Optional[str]
     _implementation: StepImplementation
 
-    def get_impl(self,**kwargs) -> StepImplementation:
+    def get_impl(self, **kwargs) -> StepImplementation:
         """Get the step execution implementation."""
         return self._implementation
 
@@ -89,5 +95,18 @@ class Step(BaseModel):
         response_dict = {}
         for i in self.dict():
             if not i.startswith('_'):
-                response_dict[i]  =self.dict()[i]
+                response_dict[i] = self.dict()[i]
+        # print(response_dict)
+        # res = json.dumps(response_dict)
+        # print("steps",response_dict)
         return response_dict
+
+
+class Pass_Flag(Exception):
+    def __init__(self,respoonse):
+        self.response = respoonse
+
+
+class Fail_Flag(Exception):
+    def __init__(self, respoonse):
+        self.response = respoonse
